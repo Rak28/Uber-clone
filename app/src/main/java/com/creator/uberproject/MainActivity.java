@@ -2,6 +2,7 @@ package com.creator.uberproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,9 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         } else if (ParseUser.getCurrentUser().get("riderOrDriver") != null) {
-
-            
-
+            Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get("riderOrDriver"));
         }
 
     }
@@ -47,5 +47,8 @@ public class MainActivity extends AppCompatActivity {
             usertype = "rider";
         }
         ParseUser.getCurrentUser().put("riderOrDriver", usertype);
+        Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get("riderOrDriver"));
+        Intent intent = new Intent(this, RiderActivity.class);
+        startActivity(intent);
     }
 }
