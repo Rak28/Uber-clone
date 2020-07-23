@@ -17,10 +17,22 @@ import com.parse.SaveCallback;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final static String QUERY = "riderOrDriver";
+    private final static String RIDER = "rider";
+    private final static String DRIVER = "driver";
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        Log.i("Parse_User", ParseUser.getCurrentUser().getUsername());
+
+        try {
+            Log.i("Current State", (String) ParseUser.getCurrentUser().get(QUERY));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (ParseUser.getCurrentUser() == null) {
             ParseAnonymousUtils.logIn(new LogInCallback() {
@@ -33,8 +45,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-        } else if (ParseUser.getCurrentUser().get("riderOrDriver") != null) {
-            Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get("riderOrDriver"));
+        } else if (ParseUser.getCurrentUser().get(QUERY) != null) {
+            Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get(QUERY));
+            if (ParseUser.getCurrentUser().get(QUERY) != RIDER) {
+                Intent intent = new Intent(this, RiderActivity.class);
+                startActivity(intent);
+            }
         }
 
     }
@@ -42,13 +58,23 @@ public class MainActivity extends AppCompatActivity {
     public void getStarted(View view) {
         Switch userTypeSwitch = findViewById(R.id.userTypeSwitch);
         Log.i("Switch Value", String.valueOf(userTypeSwitch.isChecked()));
-        String usertype = "driver";
+        String userType = DRIVER;
         if (userTypeSwitch.isChecked()) {
-            usertype = "rider";
+            userType = RIDER;
         }
-        ParseUser.getCurrentUser().put("riderOrDriver", usertype);
-        Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get("riderOrDriver"));
-        Intent intent = new Intent(this, RiderActivity.class);
-        startActivity(intent);
+        ParseUser user = ParseUser.getCurrentUser();
+        user.put(QUERY, userType);
+        final String finalUserType = userType;
+        user.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get(QUERY));
+                if (finalUserType.equals(RIDER)) {
+                    Intent intent = new Intent(MainActivity.this, RiderActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
     }
 }

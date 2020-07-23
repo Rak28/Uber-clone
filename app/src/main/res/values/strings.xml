@@ -6,4 +6,8 @@
     <string name="back4app_client_key">Lc5xy4y3Y9qqYXPxArMfDrofYq4yIv016DEenPNj</string>
     <string name="app_name">UberProject</string>
     <string name="title_activity_rider">Map</string>
+
+    <!-- APP strings -->
+    <string name="uber_ride">Call an UBER</string>
+    <string name="uber_cancel">Cancel UBER</string>
 </resources>
