@@ -20,18 +20,18 @@ public class App extends Application {
                 .server(getString(R.string.back4app_server_url))
                 .build()
         );
-        ParseObject object = new ParseObject("ExampleObject");
-        object.put("Name", "Rakshith");
-        object.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.i("Success", "File Uploaded");
-                } else {
-                    Log.i("Failed", "File not uploaded");
-                    e.printStackTrace();
-                }
-            }
-        });
+//        ParseObject object = new ParseObject("ExampleObject");
+//        object.put("Name", "Rakshith");
+//        object.saveInBackground(new SaveCallback() {
+//            @Override
+//            public void done(ParseException e) {
+//                if (e == null) {
+//                    Log.i("Success", "File Uploaded");
+//                } else {
+//                    Log.i("Failed", "File not uploaded");
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
     }
 }
