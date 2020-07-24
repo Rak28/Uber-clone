@@ -47,10 +47,7 @@ public class MainActivity extends AppCompatActivity {
             });
         } else if (ParseUser.getCurrentUser().get(QUERY) != null) {
             Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get(QUERY));
-            if (ParseUser.getCurrentUser().get(QUERY) != RIDER) {
-                Intent intent = new Intent(this, RiderActivity.class);
-                startActivity(intent);
-            }
+            redirect();
         }
 
     }
@@ -68,13 +65,25 @@ public class MainActivity extends AppCompatActivity {
         user.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                Log.i("Switch Parse", "Redirecting to " + ParseUser.getCurrentUser().get(QUERY));
-                if (finalUserType.equals(RIDER)) {
-                    Intent intent = new Intent(MainActivity.this, RiderActivity.class);
-                    startActivity(intent);
-                }
+                Log.i("Switch Parse Btn", "Redirecting to " + ParseUser.getCurrentUser().get(QUERY));
+                redirect();
             }
         });
 
+    }
+
+    private void redirect() {
+        Intent intent = new Intent();
+        if (ParseUser.getCurrentUser().get(QUERY).equals(RIDER)) {
+            intent = new Intent(this, RiderActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Log.i("Rider", RIDER);
+            startActivity(intent);
+        } else if (ParseUser.getCurrentUser().get(QUERY).equals(DRIVER)) {
+            intent = new Intent(this, ViewRequestsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Log.i("Driver", DRIVER);
+            startActivity(intent);
+        }
     }
 }

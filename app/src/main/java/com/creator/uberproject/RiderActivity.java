@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -25,7 +26,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -45,6 +48,8 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
 
     private Button choiceButton;
 
+    private static LatLng currentLocation;
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -59,8 +64,6 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
                 }
             }
         }
-
-
     }
 
 
@@ -96,13 +99,14 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
             @Override
             public void onMapLongClick(LatLng latLng) {
                 setMap(latLng);
+                currentLocation = latLng;
             }
         });
 
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                setMap(location);
+//                setMap(location);
             }
 
             @Override
@@ -127,6 +131,7 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (lastKnownLocation != null) {
+                currentLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
                 setMap(lastKnownLocation);
             }
         }
@@ -148,14 +153,9 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
     public void callDriver(View view) {
         if (choiceButton.getTag().toString().equals("1")) {
             ParseObject request = new ParseObject("Request");
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            } else {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (lastKnownLocation != null) {
+                if (currentLocation != null) {
                     request.put("Username", ParseUser.getCurrentUser().getUsername());
-                    ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                    ParseGeoPoint parseGeoPoint = new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude);
                     request.put("Location", parseGeoPoint);
                     request.saveInBackground(new SaveCallback() {
                         @Override
@@ -169,7 +169,6 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
                         }
                     });
                 }
-            }
         } else {
             cancel();
         }
@@ -197,16 +196,20 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
         });
         choiceButton.setTag(1);
         choiceButton.setText(R.string.uber_ride);
-//
-//        request.saveInBackground(new SaveCallback() {
-//            @Override
-//            public void done(ParseException e) {
-//                if (e != null) {
-//                    Log.i("Removal", "Success");
-//                } else {
-//                    Log.i("Error", "Removing");
-//                }
-//            }
-//        });
+    }
+
+    public void logout(View view) {
+
+        ParseUser user = ParseUser.getCurrentUser();
+
+        user.deleteInBackground(new DeleteCallback() {
+            @Override
+            public void done(ParseException e) {
+                Intent intent = new Intent(RiderActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
+        ParseUser.logOut();
     }
 }
